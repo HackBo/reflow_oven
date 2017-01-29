@@ -1,6 +1,8 @@
 # Reflow Oven
 
-Firmware and docs for new reflow oven 
+Firmware and docs for new reflow oven.
+
+Project codename: Oven One :-)
 
 ## Installing
 

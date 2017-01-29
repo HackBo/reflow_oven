@@ -18,6 +18,9 @@ void ProcessSerialCommands() {
     case '1':
       current_port = 1;
       break;
+    case '+': case '-':
+      digitalWrite(current_port ? kPinPort1 : kPinPort0, cmd == '+' ? HIGH : LOW);
+      break;
     default:
       digitalWrite(kPinLed, HIGH);
   }  
