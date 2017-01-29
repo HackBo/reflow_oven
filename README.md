@@ -1,6 +1,14 @@
-# Reflow Owen
+# Reflow Oven
 
 Firmware and docs for new reflow oven 
+
+## Installing
+
+In recent ubuntu versions you'll need the following packages:
+
+* python3
+* python3-serial
+* arduino
 
 ## Thermocouple
 
@@ -31,3 +39,23 @@ Using the following equation you can get one that gives you a voltage for differ
     Vout =  (Vin * R2) / (R1 + R2)
 
 We'll use Vin = 5v and we know R1's value, so the only variable is the thermocouple (R2).
+
+## Arduino pinout
+
+### Digital outputs
+
+- Pin 3 : Output port 0 (resistance)
+- Pin 4 : Output port 1 (resistance)
+- Pin 13 (builtin led): ON for error condition (invalid command, for instance).
+
+## Protocol
+
+Messages that are sent to the arduino. Each command describes what is sent and what is sent back. All communications are in bytes.
+
+- 0 : Select first port. Returns '0' (byte).
+- 1 : Select second port. Returns '1' (byte).
+- + : Turns on selected port. Returns '+'.
+- - : Turns off selected port. Returns '-'.
+- T : Asks for temperature of selected port. Returns 'T', and then the ADC value in two bytes (first one is the highest one).
+
+You can select 0 and 1 to do pings to the device. Recommended after startup.
