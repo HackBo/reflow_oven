@@ -25,7 +25,8 @@ A line wasn't enough to summarize the table.
 This [stackoverflow answer](http://stackoverflow.com/a/35302628/224184) was useful.
 
 Using the following equation you can get one that gives you a voltage for different thermocouple resistance values.
-![Equation for resistances](images/images/r1r2vinvout.png "Equation for resistances")
+
+![Equation for resistances](images/r1r2vinvout.png "Equation for resistances")
 
     Vout =  (Vin * R2) / (R1 + R2)
 
