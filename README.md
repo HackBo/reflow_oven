@@ -38,6 +38,8 @@ Using the following equation you can get one that gives you a voltage for differ
 
 ![Equation for resistances](images/r1r2vinvout.png "Equation for resistances")
 
+This is a [voltage divider](https://learn.sparkfun.com/tutorials/voltage-dividers).
+
     Vout =  (Vin * R2) / (R1 + R2)
 
     R2 = (Vout * R1) / (Vin - Vout)
