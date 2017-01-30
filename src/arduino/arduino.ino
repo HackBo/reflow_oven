@@ -1,5 +1,7 @@
 const int kPinPort0 = 3;
 const int kPinPort1 = 4;
+const int kPinAdc0 = A0;
+const int kPinAdc1 = A1;
 const int kPinLed = 13;
 
 // Current port. Can be 0 or 1. This port is used to select where the ADC/output that will be
@@ -12,6 +14,7 @@ void ProcessSerialCommands() {
   const int cmd = Serial.read();
   Serial.write(cmd);
   switch (cmd) {
+    int adc;
     case '0':
       current_port = 0;
       break;
@@ -21,9 +24,19 @@ void ProcessSerialCommands() {
     case '+': case '-':
       digitalWrite(current_port ? kPinPort1 : kPinPort0, cmd == '+' ? HIGH : LOW);
       break;
+    case 'A':
+      adc = analogRead(current_port ? kPinAdc1 : kPinAdc0);
+      Serial.write((adc >> 8) & 0xff);
+      Serial.write(adc & 0xff);
+      break;
     default:
-      digitalWrite(kPinLed, HIGH);
-  }  
+      digitalWrite(kPinPort0, LOW);
+      digitalWrite(kPinPort1, LOW);
+      while(1) {
+        digitalWrite(kPinLed, HIGH); delay(500);
+        digitalWrite(kPinLed, LOW); delay(500);
+      }
+  }
 }
 
 void loop() {

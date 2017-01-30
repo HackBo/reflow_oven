@@ -58,6 +58,6 @@ Messages that are sent to the arduino. Each command describes what is sent and w
 - 1 : Select second port. Returns '1' (byte).
 - + : Turns on selected port. Returns '+'.
 - - : Turns off selected port. Returns '-'.
-- T : Asks for temperature of selected port. Returns 'T', and then the ADC value in two bytes (first one is the highest one).
+- A : Asks for ADV value of selected port. Returns 'A', and then the ADC value in two bytes (first one is the highest one).
 
 You can select 0 and 1 to do pings to the device. Recommended after startup.
