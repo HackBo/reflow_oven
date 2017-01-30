@@ -6,11 +6,11 @@ Project codename: Oven One :-)
 
 ## Installing
 
-In recent ubuntu versions you'll need the following packages:
+In recent Ubuntu versions you'll need the following packages:
 
 * python3
 * python3-serial
-* arduino
+* Arduino
 
 ## Thermocouple
 
@@ -32,7 +32,7 @@ A line wasn't enough to summarize the table.
 
 ### Getting a voltage from the thermocouple
 
-This [stackoverflow answer](http://stackoverflow.com/a/35302628/224184) was useful.
+This [StackOverflow answer](http://stackoverflow.com/a/35302628/224184) was useful.
 
 Using the following equation you can get one that gives you a voltage for different thermocouple resistance values.
 
@@ -44,17 +44,23 @@ Using the following equation you can get one that gives you a voltage for differ
 
 We'll use Vin = 5v and we know R1's value, so the only variable is the thermocouple (R2).
 
-## Arduino uno pinout
+For now we're using R1 = 221 ohms (what we measured).
+
+## Arduino Uno pinout
+
+### Analog inputs
+
+- A0 : ADC input from the Vout formula above (Measuring Vout).
 
 ### Digital outputs
 
 - Pin 3 : Output port 0 (resistance)
 - Pin 4 : Output port 1 (resistance)
-- Pin 13 (builtin led): ON for error condition (invalid command, for instance).
+- Pin 13 (built-in led): ON for error condition (invalid command, for instance).
 
 ## Protocol
 
-Messages that are sent to the arduino. Each command describes what is sent and what is sent back. All communications are in bytes.
+Messages that are sent to the Arduino. Each command describes what is sent and what is sent back. All communications are in bytes.
 
 - 0 : Select first port. Returns '0' (byte).
 - 1 : Select second port. Returns '1' (byte).
