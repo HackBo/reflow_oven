@@ -33,8 +33,8 @@ void ProcessSerialCommands() {
       digitalWrite(kPinPort0, LOW);
       digitalWrite(kPinPort1, LOW);
       while(1) {
-        digitalWrite(kPinLed, HIGH); delay(500);
-        digitalWrite(kPinLed, LOW); delay(500);
+        digitalWrite(kPinLed, HIGH); delay(50);
+        digitalWrite(kPinLed, LOW); delay(50);
       }
   }
 }

@@ -22,7 +22,7 @@ class OvenOne:
             return False, -1
         return True, ord(high) << 8 | ord(low)
 
-    def adc_to_volts(self, adc):
+    def adc_to_temp(self, adc):
         ' Convert adc value to voltage '
         r_1 = 221
         v_max = 5.0
@@ -35,16 +35,27 @@ class OvenOne:
         r_2 = (vout * r_1) / (v_max - vout)
         temp = 0.001113 * r_2 * r_2 + 2.329774 * r_2 - 244.0946281
         print('adc:{} vout:{} r2:{} temp:{}'.format(adc, vout, r_2, temp))
+        return temp
 
-    def loop(self):
+    def set_output(self, on_off):
+        ' Turn on or off the output pin. For testing. '
+        self.arduino.sendbyte(b'0')
+        assert self.arduino.readbyte() == (True, b'0')
+        command = b'+' if on_off else  b'-'
+        print(command.decode('ascii'))
+        self.arduino.sendbyte(command)
+        assert self.arduino.readbyte() == (True, command)
+
+    def loop(self, temp_target):
         ' Print ADC0 in a loop '
         while True:
             self.arduino.sendbyte(b'A') # Read ADC
             assert self.arduino.readbyte() == (True, b'A')
             status, adc = self.get_adc()
             assert status
-            self.adc_to_volts(adc)
-            time.sleep(1)
+            temp = self.adc_to_temp(adc)
+            self.set_output(temp < temp_target)
+            time.sleep(0.5)
 
 def main():
     ' Our main funcion. Open Arduino and send pings '
@@ -64,7 +75,7 @@ def main():
     #assert arduino.readbyte() == (True, b'+')
 
     oven = OvenOne(arduino)
-    oven.loop()
+    oven.loop(temp_target = 125)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
