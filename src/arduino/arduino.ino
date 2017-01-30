@@ -23,6 +23,8 @@ void ProcessSerialCommands() {
       break;
     case '+': case '-':
       digitalWrite(current_port ? kPinPort1 : kPinPort0, cmd == '+' ? HIGH : LOW);
+      // FIXME(nelson): Delete the next line.
+      //digitalWrite(kPinLed, cmd == '+' ? HIGH : LOW);
       break;
     case 'A':
       adc = analogRead(current_port ? kPinAdc1 : kPinAdc0);

@@ -54,7 +54,10 @@ class OvenOne:
             status, adc = self.get_adc()
             assert status
             temp = self.adc_to_temp(adc)
-            self.set_output(temp < temp_target)
+            if temp < temp_target:
+                self.set_output(True)
+            else:
+                self.set_output(False)
             time.sleep(0.5)
 
 def main():
@@ -75,7 +78,7 @@ def main():
     #assert arduino.readbyte() == (True, b'+')
 
     oven = OvenOne(arduino)
-    oven.loop(temp_target = 125)
+    oven.loop(temp_target = 103)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
