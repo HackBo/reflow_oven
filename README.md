@@ -26,7 +26,7 @@ but you can summarize them with a quadratic equation.
 | 300           | 212.05        |
 
 
-    Temperature =  0.001113 * t * t + 2.329774 * t - 244.0946281
+    Temperature =  0.001113 * r * r + 2.329774 * r - 244.0946281
 
 A line wasn't enough to summarize the table.
 
@@ -39,6 +39,8 @@ Using the following equation you can get one that gives you a voltage for differ
 ![Equation for resistances](images/r1r2vinvout.png "Equation for resistances")
 
     Vout =  (Vin * R2) / (R1 + R2)
+
+    R2 = (Vout * R1) / (Vin - Vout)
 
 We'll use Vin = 5v and we know R1's value, so the only variable is the thermocouple (R2).
 

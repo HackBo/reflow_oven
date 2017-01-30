@@ -24,13 +24,17 @@ class OvenOne:
 
     def adc_to_volts(self, adc):
         ' Convert adc value to voltage '
+        r_1 = 221
         v_max = 5.0
         v_min = 0.0
         adc_max = 1023
         adc_min = 0
         slope = (v_max - v_min) / (adc_max - adc_min)
         constant = v_max -  slope * adc_max
-        return slope * adc + constant
+        vout = slope * adc + constant
+        r_2 = (vout * r_1) / (v_max - vout)
+        temp = 0.001113 * r_2 * r_2 + 2.329774 * r_2 - 244.0946281
+        print('adc:{} vout:{} r2:{} temp:{}'.format(adc, vout, r_2, temp))
 
     def loop(self):
         ' Print ADC0 in a loop '
@@ -39,7 +43,7 @@ class OvenOne:
             assert self.arduino.readbyte() == (True, b'A')
             status, adc = self.get_adc()
             assert status
-            print(adc, self.adc_to_volts(adc))
+            self.adc_to_volts(adc)
             time.sleep(1)
 
 def main():
