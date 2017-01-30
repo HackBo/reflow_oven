@@ -56,7 +56,7 @@ For now we're using R1 = 221 ohms (what we measured).
 
 - Pin 3 : Output port 0 (resistance)
 - Pin 4 : Output port 1 (resistance)
-- Pin 13 (built-in led): ON for error condition (invalid command, for instance).
+- Pin 13 (built-in led): Fast blink for error condition (invalid command, for instance).
 
 ## Protocol
 
