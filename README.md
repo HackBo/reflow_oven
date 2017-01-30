@@ -26,7 +26,7 @@ but you can summarize them with a quadratic equation.
 | 300           | 212.05        |
 
 
-    Resistance =  0.001113 * x * x + 2.329774 * x - 244.0946281
+    Temperature =  0.001113 * t * t + 2.329774 * t - 244.0946281
 
 A line wasn't enough to summarize the table.
 
