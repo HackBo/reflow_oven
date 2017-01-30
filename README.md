@@ -44,7 +44,7 @@ Using the following equation you can get one that gives you a voltage for differ
 
 We'll use Vin = 5v and we know R1's value, so the only variable is the thermocouple (R2).
 
-## Arduino pinout
+## Arduino uno pinout
 
 ### Digital outputs
 
