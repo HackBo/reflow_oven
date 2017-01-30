@@ -6,7 +6,6 @@ import time
 
 import arduinocmd
 
-
 class OvenOne:
     ' Controller for the oven '
     def __init__(self, arduino):
@@ -54,10 +53,7 @@ class OvenOne:
             status, adc = self.get_adc()
             assert status
             temp = self.adc_to_temp(adc)
-            if temp < temp_target:
-                self.set_output(True)
-            else:
-                self.set_output(False)
+            self.set_output(temp < temp_target)
             time.sleep(0.5)
 
 def main():
@@ -72,13 +68,9 @@ def main():
     if arduino.readbyte() != (True, b'1') or arduino.readbyte() != (True, b'0'):
         logging.error('Ping to port %s failed. Bailing out. Be safe.', sys.argv[1])
     logging.info('Ping OK!')
-
-    # FIXME(remove)
-    #arduino.sendbyte(b'+')
-    #assert arduino.readbyte() == (True, b'+')
-
+    # Start owen loop. With a fixed temperature, just for a test.
     oven = OvenOne(arduino)
-    oven.loop(temp_target = 103)
+    oven.loop(temp_target=103)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
