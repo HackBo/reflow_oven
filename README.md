@@ -10,7 +10,7 @@ In recent Ubuntu versions you'll need the following packages:
 
 * python3
 * python3-serial
-* Arduino
+* arduino
 
 ## Thermocouple
 
