@@ -71,3 +71,15 @@ Messages that are sent to the Arduino. Each command describes what is sent and w
 - A : Asks for ADV value of selected port. Returns 'A', and then the ADC value in two bytes (first one is the highest one).
 
 You can select 0 and 1 to do pings to the device. Recommended after startup.
+
+
+## Power Circuit
+
+[easy eda project] (https://easyeda.com/cmsvalenzuela/Power_circuit_reflow_oven-b03160d6e52648cb9ea1c21ea43c88d2).
+
+
+
+
+## Max 6675 type k thermocouple
+
+
