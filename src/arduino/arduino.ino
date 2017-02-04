@@ -33,7 +33,6 @@ void loop() {
     default:
       digitalWrite(kPinPort0, LOW);
       digitalWrite(kPinPort1, LOW);
-      Serial.write('e0');
       while(1) {
         digitalWrite(kPinErrorLed, HIGH); delay(50);
         digitalWrite(kPinErrorLed, LOW); delay(50);
