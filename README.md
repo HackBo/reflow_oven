@@ -77,7 +77,7 @@ You can select 0 and 1 to do pings to the device. Recommended after startup.
 
 [easy eda project] (https://easyeda.com/cmsvalenzuela/Power_circuit_reflow_oven-b03160d6e52648cb9ea1c21ea43c88d2).
 
-
+![Circuit preview](images/powercircuit.png "circuit")
 
 
 ## Max 6675 type k thermocouple
