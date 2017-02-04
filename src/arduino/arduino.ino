@@ -1,53 +1,52 @@
-const int kPinPort0 = 3;
-const int kPinPort1 = 4;
-const int kPinAdc0 = A0;
-const int kPinAdc1 = A1;
-const int kPinLed = 13;
+#include "max6675.h"
 
-// Current port. Can be 0 or 1. This port is used to select where the ADC/output that will be
-// referenced in commands (ADC read and on/off).
-int current_port = 0;
+// Arduino Nano ATmega 328.
+const int kPinPort0 = PD2;
+const int kPinPort1 = PD3;
+const int kPinErrorLed = PD4;
+const int kTCS0 = PD6;
+const int kTCS1 = PD7;
 
-void ProcessSerialCommands() {
+int current_thermo = 0;
+MAX6675 thermocouple0(SCK, kTCS0, MISO);
+MAX6675 thermocouple1(SCK, kTCS1, MISO);
+
+void loop() {
   if (!Serial.available())
     return;
   const int cmd = Serial.read();
   Serial.write(cmd);
   switch (cmd) {
-    int adc;
-    case '0':
-      current_port = 0;
-      break;
-    case '1':
-      current_port = 1;
+    char buffer[16];
+    double temp;
+    case '0': case '1':
+      current_thermo = cmd - '0';
       break;
     case '+': case '-':
-      digitalWrite(current_port ? kPinPort1 : kPinPort0, cmd == '+' ? HIGH : LOW);
-      // FIXME(nelson): Delete the next line.
-      //digitalWrite(kPinLed, cmd == '+' ? HIGH : LOW);
+      digitalWrite(current_thermo ? kPinPort1 : kPinPort0, cmd == '+' ? HIGH : LOW);
       break;
-    case 'A':
-      adc = analogRead(current_port ? kPinAdc1 : kPinAdc0);
-      Serial.write((adc >> 8) & 0xff);
-      Serial.write(adc & 0xff);
+    case 'T':
+      temp = current_thermo ? thermocouple1.readCelsius() : thermocouple0.readCelsius();
+      sprintf(buffer, "%07d", int(1000 * temp));
+      Serial.print(buffer);
       break;
     default:
       digitalWrite(kPinPort0, LOW);
       digitalWrite(kPinPort1, LOW);
+      Serial.write('e0');
       while(1) {
-        digitalWrite(kPinLed, HIGH); delay(50);
-        digitalWrite(kPinLed, LOW); delay(50);
+        digitalWrite(kPinErrorLed, HIGH); delay(50);
+        digitalWrite(kPinErrorLed, LOW); delay(50);
       }
   }
 }
 
-void loop() {
-  ProcessSerialCommands();
-}
-
 void setup() {
-  Serial.begin(9600);   // opens serial port, sets data rate to 9600 bps
-  pinMode(kPinPort0, OUTPUT);   // Output port 0
-  pinMode(kPinPort1, OUTPUT);   // Output port 1
-  pinMode(kPinLed, OUTPUT);   // Output port 13. On if an error is present.
+  Serial.begin(9600);
+  pinMode(kPinPort0, OUTPUT);
+  pinMode(kPinPort1, OUTPUT);
+  pinMode(kPinErrorLed, OUTPUT);
+  digitalWrite(kPinPort0, LOW);
+  digitalWrite(kPinPort1, LOW);
+  digitalWrite(kPinErrorLed, LOW);
 }
