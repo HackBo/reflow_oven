@@ -15,8 +15,8 @@ class OvenOne:
         ' Send a command '
         cmd_out = bytes(cmd.encode('ascii'))
         self.arduino.sendbyte(cmd_out)
-        cmd_in = self.arduino.readbyte()
-        if cmd_out != cmd_in:
+        status, cmd_in = self.arduino.readbyte()
+        if not status or cmd_in != cmd_out:
             print('Error sending command!', file=sys.stderr)
             sys.exit(1)
 
@@ -32,9 +32,14 @@ class OvenOne:
 
     def read_temp(self):
         ' Read owen temperature for selected thermocouple '
+        self.send_cmd('T')
         num_str = ''
         for _ in range(7):
-            num_str += self.arduino.readbyte().decode('ascii')
+            status, in_byte = self.arduino.readbyte()
+            if not status:
+                print('Error receiving temp!', file=sys.stderr)
+                sys.exit(1)
+            num_str += in_byte.decode('ascii')
         print('{}'.format(float(num_str) * 1000))
 
     def loop(self, temp_target):
@@ -51,7 +56,7 @@ def main():
     logging.info('Trying to open port %s', sys.argv[1])
     arduino = arduinocmd.Arduino(port=sys.argv[1], baudrate=9600)
     logging.info('Opened port %s. Lets wait and send pings.', sys.argv[1])
-    time.sleep(2.0)
+    time.sleep(1.0)
     # Sending ping.
     arduino.sendbyte(b'1')
     arduino.sendbyte(b'0')
