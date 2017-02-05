@@ -15,7 +15,7 @@ def main():
     time.sleep(1.0)
     oven = OvenOne(arduino)
     oven.select(0)
-    control = OvenControl(oven, 'oven_program.txt', zone_degrees=10)
+    control = OvenControl(oven, 'data/oven_program.txt', zone_degrees=10)
     control.follow_curve()
 
 if __name__ == '__main__':
