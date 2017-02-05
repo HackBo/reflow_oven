@@ -40,15 +40,27 @@ class OvenOne:
                 print('Error receiving temp!', file=sys.stderr)
                 sys.exit(1)
             num_str += in_byte.decode('ascii')
-        print('{}'.format(float(num_str) * 1000))
+        return float(num_str) / 1000.0
 
-    def loop(self, temp_target):
+    def loop2(self, temp_target):
         ' Print ADC0 in a loop '
         while True:
             for who in [0, 1]:
                 self.select(who)
+                self.set_output(True)
                 self.read_temp()
-            time.sleep(0)
+                #time.sleep(0.2)
+                self.set_output(False)
+            time.sleep(0.5)
+
+    def loop(self, temp_target):
+        ' Print ADC0 in a loop '
+        self.select(0)
+        while True:
+            temp = self.read_temp()
+            print(temp)
+            self.set_output(temp < 40)
+            time.sleep(1.0)
 
 def main():
     ' Our main funcion. Open Arduino and send pings '

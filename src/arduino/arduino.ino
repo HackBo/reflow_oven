@@ -27,7 +27,8 @@ void loop() {
       break;
     case 'T':
       temp = current_thermo ? thermocouple1.readCelsius() : thermocouple0.readCelsius();
-      sprintf(buffer, "%07d", int(1000 * temp));
+      if (temp == NAN)
+      sprintf(buffer, "%07ld", long(1000L * long(temp)));
       Serial.print(buffer);
       break;
     default:
