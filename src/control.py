@@ -32,6 +32,7 @@ class OvenOne:
 
     def read_temp(self):
         ' Read owen temperature for selected thermocouple '
+        ' Do not read too fast or it will not work '
         self.send_cmd('T')
         num_str = ''
         for _ in range(7):
@@ -44,33 +45,6 @@ class OvenOne:
         print('Error receiving temp!', file=sys.stderr)
         sys.exit(1)
 
-    def loop2(self, temp_target):
-        ' Print ADC0 in a loop '
-        while True:
-            for who in [0, 1]:
-                self.select(who)
-                self.set_output(True)
-                self.read_temp()
-                #time.sleep(0.2)
-                self.set_output(False)
-            time.sleep(0.5)
-
-    def loop(self, temp_target):
-        ' Print ADC0 in a loop '
-        self.select(0)
-        while True:
-            temp = self.read_temp()
-            print(temp)
-            self.set_output(temp < 40)
-            time.sleep(1.0)
-
-
-def better_temp(oven):
-    all_read = 0.0
-    for _ in range(5):
-        all_read += oven.read_temp()
-    return all_read / 5.-1
-
 def aim_for (t0, oven, yprev, tprev, ynext, tnext, deltat):
     slope = (ynext - yprev) / (tnext - tprev)
     const = ynext - slope * tnext
@@ -79,14 +53,16 @@ def aim_for (t0, oven, yprev, tprev, ynext, tnext, deltat):
       time.sleep(deltat)
       ynow0 = oven.read_temp()
       tnow = time.time() - t0
-      guess = slope * (tnow + deltat * 3)  + const
+      #guess = slope * (tnow + deltat * (30 / deltat))  + const
+      guess = slope * (tnow + 30 )  + const
 
       oven.set_output(ynow0 < guess)
 
-      log = '{} {} {} {}'.format(round(tnow, 2), round(tnext, 2), round(ynow0, 2), round(ynext, 2))
+      #log = '{} {} {} {}'.format(round(tnow, 2), round(tnext, 2), round(ynow0, 2), round(ynext, 2))
+      log = '{} {}'.format(round(tnow, 2), round(ynow0, 2))
       print(log)
       sys.stdout.flush()
-      print('t0 t1 realt goal_t', file=sys.stderr)
+      print('time temp', file=sys.stderr)
       print(log, file=sys.stderr)
       sys.stderr.flush()
 
@@ -123,7 +99,7 @@ def main():
     temp_before = program[0][1]
     t0 = time.time()
     for v in program[1:]:
-      aim_for(t0, oven, temp_before, time_before, v[1], v[0], 0.1)
+      aim_for(t0, oven, temp_before, time_before, v[1], v[0], 0.25)
       time_before = v[0]
       temp_before = v[1]
     print >> sys.stderr, "Goal reached. End."
