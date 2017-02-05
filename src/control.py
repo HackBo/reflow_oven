@@ -1,108 +1,72 @@
 ' Communication with the Arduino uno '
 
-import logging
 import sys
 import time
 
-import arduinocmd
-
-class OvenOne:
-    ' Controller for the oven '
-    def __init__(self, arduino):
-        self.arduino = arduino
-
-    def send_cmd(self, cmd):
-        ' Send a command '
-        cmd_out = bytes(cmd.encode('ascii'))
-        self.arduino.sendbyte(cmd_out)
-        status, cmd_in = self.arduino.readbyte()
-        if not status or cmd_in != cmd_out:
-            print('Error sending command!', file=sys.stderr)
-            sys.exit(1)
-
-    def select(self, who):
-        ' Select thermocouple to read. Select output to write.'
-        assert who == 0 or who == 1
-        self.send_cmd(chr(ord('0') + who))
-
-    def set_output(self, value):
-        ' Set output to true of on or off value '
-        assert isinstance(value, bool)
-        self.send_cmd('+' if value else '-')
-
-    def read_temp(self):
-        ' Read owen temperature for selected thermocouple '
-        ' Do not read too fast or it will not work '
-        self.send_cmd('T')
-        num_str = ''
-        for _ in range(7):
-            status, in_byte = self.arduino.readbyte()
-            if not status:
-                break
-            if in_byte == b'.':
-                return float(num_str) / 4.0
-            num_str += in_byte.decode('ascii')
-        print('Error receiving temp!', file=sys.stderr)
-        sys.exit(1)
-
-def aim_for (t0, oven, yprev, tprev, ynext, tnext, deltat):
-    slope = (ynext - yprev) / (tnext - tprev)
-    const = ynext - slope * tnext
-    tnow = time.time() - t0
-    while tnow <= tnext:
-      time.sleep(deltat)
-      ynow0 = oven.read_temp()
-      tnow = time.time() - t0
-      guess = slope * tnow  + const
-
-      oven.set_output(ynow0 < guess)
-
-      #log = '{} {} {} {}'.format(round(tnow, 2), round(tnext, 2), round(ynow0, 2), round(ynext, 2))
-      log = '{} {}'.format(round(tnow, 2), round(ynow0, 2))
-      print(log)
-      sys.stdout.flush()
-      print('time temp', file=sys.stderr)
-      print(log, file=sys.stderr)
-      sys.stderr.flush()
-
 def read_curve(filename):
-    f = open(filename, 'r')
-    v = []
-    l = f.readline().strip()
-    while len(l):
-      if l.find('#') == -1:
-        x, y = l.rsplit(' ')
-        v.append([float(x), float(y)])
-      l = f.readline().strip()
-    f.close()
-    return v
+    ' Read control curve from file '
+    with open(filename) as f_in:
+        curve = []
+        line = f_in.readline().strip()
+        while len(line):
+            if line.find('#') == -1:
+                spl = line.rsplit(' ')
+                curve.append([float(spl[0]), float(spl[1])])
+            line = f_in.readline().strip()
+        return curve
 
-def main():
-    ' Our main funcion. Open Arduino and send pings '
-    logging.info('Be safe!')
-    logging.info('Trying to open port %s', sys.argv[1])
-    arduino = arduinocmd.Arduino(port=sys.argv[1], baudrate=9600)
-    logging.info('Opened port %s. Lets wait and send pings.', sys.argv[1])
-    time.sleep(1.0)
-    # Sending ping.
-    arduino.sendbyte(b'1')
-    arduino.sendbyte(b'0')
-    if arduino.readbyte() != (True, b'1') or arduino.readbyte() != (True, b'0'):
-        logging.error('Ping to port %s failed. Bailing out. Be safe.', sys.argv[1])
-    logging.info('Ping OK!')
-    # Start owen loop. With a fixed temperature, just for a test.
-    oven = OvenOne(arduino)
-    oven.select(0)
-    program = read_curve('splinedata')
-    time_before = program[0][0]
-    temp_before = program[0][1]
-    t0 = time.time()
-    for v in program[1:]:
-      aim_for(t0, oven, temp_before, time_before, v[1], v[0], 0.25)
-      time_before = v[0]
-      temp_before = v[1]
-    print >> sys.stderr, "Goal reached. End."
+class OvenControl:
+    ' Control the reflow oven! '
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    main()
+    def __init__(self, oven, curve_file_name, zone_degrees):
+        self.time_start = time.time()
+        self.oven = oven
+        self.curve_file_name = curve_file_name
+        # Proportional zone. Only start doing proportional control
+        # if the error gets to this zone.
+        self.zone = zone_degrees
+        self.mult = 2
+        self.time_window = 3.0 # seconds
+
+    def follow_curve(self):
+        ' main control loop '
+        program = read_curve(self.curve_file_name)
+        time_before = program[0][0]
+        temp_before = program[0][1]
+        for point in program[1:]:
+            self.aim_for(temp_before, time_before,
+                         point[1], point[0])
+            time_before = point[0]
+            temp_before = point[1]
+
+    def aim_for(self, temp_from, time_from, temp_to, time_to):
+        ' aim for a given temperature '
+        # Compute rect for temperature increase.
+        slope = (temp_to - temp_from) / (time_to - time_from)
+        const = temp_to - slope * time_to
+        # This will take about 0.25s.
+        temp_0 = self.oven.read_temp()
+        while time.time() - self.time_start <= time_to:
+            time_in_curve = time.time() - self.time_start
+            temp_wanted = slope * time_in_curve + const
+            print('{} {}'.format(round(time_in_curve, 2), round(temp_0, 2)))
+            sys.stdout.flush()
+            error = temp_wanted - temp_0
+            if error < 0:
+                proportion = 0.0
+            elif error > self.zone:
+                proportion = 1.0
+            else:
+                proportion = max(1.0, (error * self.mult) / self.zone)
+            # Only turn on if we need to do some control.
+            self.oven.set_output(proportion > 0.0)
+            # Time reading from the thermocouple.
+            time_thermo = time.time()
+            temp_0 = self.oven.read_temp()
+            time_thermo = time.time() - time_thermo
+            # How long do we need to be on and off?
+            time_need_on = self.time_window * proportion - time_thermo
+            time_need_off = self.time_window - time_need_on
+            time.sleep(time_need_on)
+            self.oven.set_output(False)
+            time.sleep(time_need_off)
