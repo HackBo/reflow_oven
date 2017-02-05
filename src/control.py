@@ -27,7 +27,7 @@ class OvenControl:
         # if the error gets to this zone.
         self.zone = zone_degrees
         self.mult = 2
-        self.time_window = 3.0 # seconds
+        self.time_window = 1 # seconds
 
     def follow_curve(self):
         ' main control loop '
@@ -57,7 +57,7 @@ class OvenControl:
             elif error > self.zone:
                 proportion = 1.0
             else:
-                proportion = (error * self.mult) / self.zone
+                proportion = min(1.0, (error * self.mult) / self.zone)
             logging.info('error: %s', error)
             print('time:{} temp:{} target:{} error:{} proportion:{}'.format(round(time_in_curve, 2), round(temp_0, 2), round(temp_wanted, 2), round(error, 2), round(proportion, 2)), file=sys.stderr)
             sys.stdout.flush()
@@ -76,5 +76,5 @@ class OvenControl:
             #logging.info('time_on: %s', time_need_on)
             #logging.info('time_off: %s', time_need_off)
             time.sleep(max(0, time_need_on))
-            self.oven.set_output(False)
+            self.oven.set_output(proportion >= 1.0)
             time.sleep(max(0, time_need_off))
