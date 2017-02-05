@@ -1,10 +1,6 @@
 ' Communication with the Arduino uno '
 
-import logging
 import sys
-import time
-
-import arduinocmd
 
 class OvenOne:
     ' Controller for the oven '
@@ -31,8 +27,8 @@ class OvenOne:
         self.send_cmd('+' if value else '-')
 
     def read_temp(self):
-        ' Read owen temperature for selected thermocouple '
-        ' Do not read too fast or it will not work '
+        ''' Read owen temperature for selected thermocouple
+            You need a delay of about 1/4s between reads. '''
         self.send_cmd('T')
         num_str = ''
         for _ in range(7):
