@@ -37,10 +37,12 @@ class OvenOne:
         for _ in range(7):
             status, in_byte = self.arduino.readbyte()
             if not status:
-                print('Error receiving temp!', file=sys.stderr)
-                sys.exit(1)
+                break
+            if in_byte == b'.':
+                return float(num_str) / 4.0
             num_str += in_byte.decode('ascii')
-        return float(num_str) / 1000.0
+        print('Error receiving temp!', file=sys.stderr)
+        sys.exit(1)
 
     def loop2(self, temp_target):
         ' Print ADC0 in a loop '

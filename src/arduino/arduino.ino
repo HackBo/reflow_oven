@@ -18,7 +18,7 @@ void loop() {
   Serial.write(cmd);
   switch (cmd) {
     char buffer[16];
-    double temp;
+    long temp;
     case '0': case '1':
       current_thermo = cmd - '0';
       break;
@@ -26,12 +26,14 @@ void loop() {
       digitalWrite(current_thermo ? kPinPort1 : kPinPort0, cmd == '+' ? HIGH : LOW);
       break;
     case 'T':
-      temp = current_thermo ? thermocouple1.readCelsius() : thermocouple0.readCelsius();
-      if (temp == NAN)
-      sprintf(buffer, "%07ld", long(1000L * long(temp)));
+      temp = current_thermo ? thermocouple1.ReadCelsiusByFour() :
+                              thermocouple0.ReadCelsiusByFour();
+      if (temp == -1)
+        goto disconnected;
+      sprintf(buffer, "%ld.", temp);
       Serial.print(buffer);
       break;
-    default:
+    default: disconnected:
       digitalWrite(kPinPort0, LOW);
       digitalWrite(kPinPort1, LOW);
       while(1) {

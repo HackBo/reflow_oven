@@ -22,8 +22,8 @@ MAX6675::MAX6675(int8_t SCLK, int8_t CS, int8_t MISO) {
 
   digitalWrite(cs, HIGH);
 }
-double MAX6675::readCelsius(void) {
 
+long MAX6675::ReadCelsiusByFour(void) {
   uint16_t v;
 
   digitalWrite(cs, LOW);
@@ -37,17 +37,11 @@ double MAX6675::readCelsius(void) {
 
   if (v & 0x4) {
     // uh oh, no thermocouple attached!
-    return NAN; 
-    //return -100;
+    return -1;
   }
 
   v >>= 3;
-
-  return v*0.25;
-}
-
-double MAX6675::readFahrenheit(void) {
-  return readCelsius() * 9.0/5.0 + 32;
+  return long(v);
 }
 
 byte MAX6675::spiread(void) { 
