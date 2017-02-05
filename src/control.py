@@ -26,7 +26,7 @@ class OvenControl:
         # Proportional zone. Only start doing proportional control
         # if the error gets to this zone.
         self.zone = zone_degrees
-        self.mult = 2
+        self.mult = 3
         self.time_window = 1 # seconds
 
     def follow_curve(self):
