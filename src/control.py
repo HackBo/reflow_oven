@@ -53,8 +53,7 @@ def aim_for (t0, oven, yprev, tprev, ynext, tnext, deltat):
       time.sleep(deltat)
       ynow0 = oven.read_temp()
       tnow = time.time() - t0
-      #guess = slope * (tnow + deltat * (30 / deltat))  + const
-      guess = slope * (tnow + 30 )  + const
+      guess = slope * tnow  + const
 
       oven.set_output(ynow0 < guess)
 
