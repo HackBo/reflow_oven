@@ -27,7 +27,7 @@ class OvenControl:
         # if the error gets to this zone.
         self.zone = zone_degrees
         self.mult = 3
-        self.time_window = 1 # seconds
+        self.time_window = 0.5 # seconds
 
     def follow_curve(self):
         ' main control loop '

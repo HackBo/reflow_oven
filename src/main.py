@@ -12,10 +12,10 @@ def main():
     ' Our main funcion. Open Arduino and send pings '
     logging.info('Trying to open port %s', sys.argv[1])
     arduino = arduinocmd.Arduino(port=sys.argv[1], baudrate=9600)
-    time.sleep(1.0)
+    time.sleep(2.0)
     oven = OvenOne(arduino)
     oven.select(0)
-    control = OvenControl(oven, 'data/oven_program.txt', zone_degrees=15)
+    control = OvenControl(oven, 'data/oven_program_normal.txt', zone_degrees=15)
     control.follow_curve()
 
 if __name__ == '__main__':
