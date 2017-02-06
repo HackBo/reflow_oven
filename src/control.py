@@ -50,7 +50,9 @@ class OvenControl:
         while time.time() - self.time_start <= time_to:
             time_in_curve = time.time() - self.time_start
             temp_wanted = slope * time_in_curve + const
-            print('{} {} {}'.format(round(time_in_curve, 2), round(temp_0, 2), round(temp_wanted, 2)))
+            print('{} {} {}'.format(round(time_in_curve, 2),
+                                    round(temp_0, 2),
+                                    round(temp_wanted, 2)))
             error = temp_wanted - temp_0
             if error < 0:
                 proportion = 0.0
@@ -59,7 +61,10 @@ class OvenControl:
             else:
                 proportion = min(1.0, (error * self.mult) / self.zone)
             logging.info('error: %s', error)
-            print('time:{} temp:{} target:{} error:{} proportion:{}'.format(round(time_in_curve, 2), round(temp_0, 2), round(temp_wanted, 2), round(error, 2), round(proportion, 2)), file=sys.stderr)
+            print('time:{} temp:{} target:{} error:{} proportion:{}'.format(
+                round(time_in_curve, 2), round(temp_0, 2), round(temp_wanted, 2),
+                round(error, 2), round(proportion, 2)),
+                  file=sys.stderr)
             sys.stdout.flush()
             #logging.info('error * mult: %s', error * self.mult)
             #logging.info('error * mult / zone: %s', (error * self.mult) / self.zone)
@@ -69,7 +74,7 @@ class OvenControl:
             # Time reading from the thermocouple.
             time_thermo = time.time()
             temp_0 = self.oven.read_temp()
-            time_thermo =time.time() - time_thermo
+            time_thermo = time.time() - time_thermo
             # How long do we need to be on and off?
             time_need_on = self.time_window * proportion - time_thermo
             time_need_off = self.time_window - time_need_on
