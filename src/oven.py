@@ -49,7 +49,7 @@ class FakeOvenOne:
         self.temp = 22.0
         self.is_on = False
         # How much to increase per second when turned on.
-        self.deg_sec_up = 0.8
+        self.deg_sec_up = 2
         # How much to decrease per second when turned off.
         self.deg_sec_down = 0.05
 
