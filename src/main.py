@@ -31,7 +31,7 @@ def main():
     oven.select(0)
     control = OvenControl(oven=oven,
                           curve_file_name='data/oven_program_normal.txt',
-                          zone_degrees=15,
+                          zone_degrees=5,
                           is_simulation=args.simulate)
     control.follow_curve()
 

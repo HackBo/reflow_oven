@@ -27,7 +27,7 @@ class OvenControl:
         # if the error gets to this zone.
         self.zone = zone_degrees
         self.proporcional_k = 3
-        self.integral_k = 1
+        self.integral_k = 0.7
         self.time_window = 0.2 # seconds
         # Starting time for control/simulation.
         self.time_start = self.current_time()
