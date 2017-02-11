@@ -45,7 +45,13 @@ class FakeOvenOne:
     ' Oven: simulated oven for testing '
 
     def __init__(self):
-        self.temp = 22
+        self.simulated_time = 0.0
+        self.temp = 22.0
+        self.is_on = False
+        # How much to increase per second when turned on.
+        self.deg_sec_up = 0.5
+        # How much to decrease per second when turned off.
+        self.deg_sec_down = 0.05
 
     def select(self, who):
         ' Select thermocouple to read. Select output to write.'
@@ -54,19 +60,21 @@ class FakeOvenOne:
     def set_output(self, value):
         ' Set output to true of on or off value '
         assert isinstance(value, bool)
-        self.send_cmd('+' if value else '-')
+        self.is_on = value
 
     def read_temp(self):
-        ''' Read owen temperature for selected thermocouple
-            You need a delay of about 1/4s between reads. '''
-        self.send_cmd('T')
-        num_str = ''
-        for _ in range(7):
-            status, in_byte = self.arduino.readbyte()
-            if not status:
-                break
-            if in_byte == b'.':
-                return float(num_str) / 4.0
-            num_str += in_byte.decode('ascii')
-        print('Error receiving temp!', file=sys.stderr)
-        sys.exit(1)
+        ' Read simulated temperature '
+        return self.temp
+
+    def sleep(self, seconds):
+        ' simulate sleep and change temperature '
+        if self.is_on:
+            self.temp += max(240.0, seconds * self.deg_sec_up)
+        else:
+            self.temp -= min(22.0, seconds * self.deg_sec_down)
+        self.simulated_time += seconds
+
+    def current_time(self):
+        ' Get the simulated time '
+        self.simulated_time += 0.0001 # Never return the same temp.
+        return self.simulated_time
