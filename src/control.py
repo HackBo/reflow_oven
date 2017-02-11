@@ -27,7 +27,7 @@ class OvenControl:
         # if the error gets to this zone.
         self.zone = zone_degrees
         self.proporcional_k = 3
-        self.integral_k = 0.5
+        self.integral_k = 1
         self.time_window = 0.2 # seconds
         # Starting time for control/simulation.
         self.time_start = self.current_time()
@@ -73,6 +73,7 @@ class OvenControl:
                                     round(temp_wanted, 2)))
             error = temp_wanted - temp_0
             self.past_n_error.append(error * self.time_window)
+
             if error < 0:
                 proportion = 0.0
             elif error > self.zone:
