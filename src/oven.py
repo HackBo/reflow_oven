@@ -1,5 +1,7 @@
 ' Communication with the Arduino uno '
 
+import math
+import random
 import sys
 
 class RealOvenOne:
@@ -66,7 +68,7 @@ class FakeOvenOne:
 
     def read_temp(self):
         ' Read simulated temperature '
-        return self.temp
+        return self.temp + math.floor(random.random() *3) * 0.25
 
     def sleep(self, seconds):
         ' simulate sleep and change temperature '
