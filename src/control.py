@@ -18,15 +18,17 @@ def read_curve(filename):
 class OvenControl:
     ' Control the reflow oven! '
 
-    def __init__(self, oven, curve_file_name, zone_degrees):
-        self.time_start = time.time()
+    def __init__(self, oven, curve_file_name, zone_degrees, is_simulation):
         self.oven = oven
         self.curve_file_name = curve_file_name
+        self.is_simulation = is_simulation
         # Proportional zone. Only start doing proportional control
         # if the error gets to this zone.
         self.zone = zone_degrees
         self.mult = 3
         self.time_window = 0.5 # seconds
+        # Starting time for control/simulation.
+        self.time_start = self.current_time()
 
     def follow_curve(self):
         ' main control loop '
@@ -39,6 +41,20 @@ class OvenControl:
             time_before = point[0]
             temp_before = point[1]
 
+    def sleep(self, seconds):
+        ' Sleep for the given mount of seconds '
+        if self.is_simulation:
+            self.oven.sleep(seconds)
+        else:
+            time.sleep(seconds)
+
+    def current_time(self):
+        ' Get the current time '
+        if self.is_simulation:
+            return self.oven.current_time()
+        else:
+            return time.time()
+
     def aim_for(self, temp_from, time_from, temp_to, time_to):
         ' aim for a given temperature '
         # Compute rect for temperature increase.
@@ -46,8 +62,8 @@ class OvenControl:
         const = temp_to - slope * time_to
         # This will take about 0.25s.
         temp_0 = self.oven.read_temp()
-        while time.time() - self.time_start <= time_to:
-            time_in_curve = time.time() - self.time_start
+        while self.current_time() - self.time_start <= time_to:
+            time_in_curve = self.current_time() - self.time_start
             temp_wanted = slope * time_in_curve + const
             print('{} {} {}'.format(round(time_in_curve, 2),
                                     round(temp_0, 2),
@@ -67,12 +83,12 @@ class OvenControl:
             # Only turn on if we need to do some control.
             self.oven.set_output(proportion > 0.0)
             # Time reading from the thermocouple.
-            time_thermo = time.time()
+            time_thermo = self.current_time()
             temp_0 = self.oven.read_temp()
-            time_thermo = time.time() - time_thermo
+            time_thermo = self.current_time() - time_thermo
             # How long do we need to be on and off?
             time_need_on = self.time_window * proportion - time_thermo
             time_need_off = self.time_window - time_need_on
-            time.sleep(max(0, time_need_on))
+            self.sleep(max(0, time_need_on))
             self.oven.set_output(proportion >= 1.0)
-            time.sleep(max(0, time_need_off))
+            self.sleep(max(0, time_need_off))
