@@ -49,13 +49,15 @@ class FakeOvenOne:
         self.temp = 22.0
         self.is_on = False
         # How much to increase per second when turned on.
-        self.deg_sec_up = 0.5
+        self.deg_sec_up = 0.8
         # How much to decrease per second when turned off.
         self.deg_sec_down = 0.05
 
     def select(self, who):
         ' Select thermocouple to read. Select output to write.'
         assert who == 0 or who == 1
+        print('Selection not supported in simulated oven',
+              file=sys.stderr)
 
     def set_output(self, value):
         ' Set output to true of on or off value '
@@ -69,9 +71,11 @@ class FakeOvenOne:
     def sleep(self, seconds):
         ' simulate sleep and change temperature '
         if self.is_on:
-            self.temp += max(240.0, seconds * self.deg_sec_up)
+            self.temp += seconds * self.deg_sec_up
+            self.temp = min(240.0, self.temp)
         else:
-            self.temp -= min(22.0, seconds * self.deg_sec_down)
+            self.temp -= seconds * self.deg_sec_down
+            self.temp = max(22.0, self.temp)
         self.simulated_time += seconds
 
     def current_time(self):
