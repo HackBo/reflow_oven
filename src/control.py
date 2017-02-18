@@ -26,12 +26,12 @@ class OvenControl:
         # Proportional zone. Only start doing proportional control
         # if the error gets to this zone.
         self.zone = zone_degrees
-        self.proporcional_k = 3
+        self.proporcional_k = 3.0
         self.integral_k = 0.7
         self.time_window = 0.2 # seconds
         # Starting time for control/simulation.
         self.time_start = self.current_time()
-        self.past_n_error = deque([0.0], maxlen=3)
+        self.past_n_error = 0.0
 
     def follow_curve(self):
         ' main control loop '
@@ -72,16 +72,16 @@ class OvenControl:
                                     round(temp_0, 2),
                                     round(temp_wanted, 2)))
             error = temp_wanted - temp_0
-            self.past_n_error.append(error * self.time_window)
+            self.past_n_error += error * self.time_window
 
             if error < 0:
                 proportion = 0.0
             elif error > self.zone:
                 proportion = 1.0
             else:
-                integral = self.integral_k * sum(self.past_n_error)
+                integral = self.integral_k * self.past_n_error
                 proportional = (self.proporcional_k * error) / self.zone
-                proportion = min(1.0, integral + proportional)
+                proportion = max(0.0, min(1.0, integral + proportional))
             print('time:{} temp:{} target:{} error:{} proportion:{}'.format(
                 round(time_in_curve, 2), round(temp_0, 2), round(temp_wanted, 2),
                 round(error, 2), round(proportion, 2)),
