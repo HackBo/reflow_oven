@@ -6,10 +6,11 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include "uart_handler.h"
+#include "oven_one.h"
 static int uart_num = UART_NUM_0;
 QueueHandle_t uart0_queue;
 
-static const char *TAG = "UART";
+//static const char *TAG = "UART";
 
 #define BUF_SIZE (1024)
 void uart_task(void *pvParameters)
@@ -102,7 +103,7 @@ void uart_init(void)
         if(len > 0) {
             ESP_LOGI(TAG, "uart read : len: %d data: %c\n", len, data[0]);
 	    //TODO: find a better way to recieve commands from uart, hint:pointer to oven method param.
-	    //cmd_oven(data[0]);
+	    cmd_oven(data[0]);
         }
     } while(1);
 }
