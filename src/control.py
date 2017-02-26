@@ -1,6 +1,5 @@
 ' Communication with the Arduino uno '
 
-from collections import deque
 import sys
 import time
 
