@@ -101,7 +101,7 @@ void uart_init(void)
     do {
         int len = uart_read_bytes(uart_num, data, BUF_SIZE, 100 / portTICK_RATE_MS);
         if(len > 0) {
-            ESP_LOGI(TAG, "uart read : len: %d data: %c\n", len, data[0]);
+            //ESP_LOGI(TAG, "uart read : len: %d data: %c\n", len, data[0]);
 	    //TODO: find a better way to recieve commands from uart, hint:pointer to oven method param.
 	    cmd_oven(data[0]);
         }

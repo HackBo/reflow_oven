@@ -6,6 +6,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include "oven_one.h"
+#include "driver/uart.h"
 
 int now(void)
 {
@@ -24,7 +25,23 @@ void init_oven(void)
     gpio_pad_select_gpio(OVEN_GPIO);
     gpio_set_direction(OVEN_GPIO, GPIO_MODE_OUTPUT);
 }
+void profile_power(void *pvParameters)
+{
+   int time_start=now();
+   //int last=now();
+   while ((now() - time_start) <= 400 ){
+       //if(last!=now()){
+       //  last=now();
+           double temp_0 = read_temp();
+           int time=now();
+           static char buf[15];
+           snprintf(buf,sizeof(buf), "%.2f,%d;\n", temp_0,time);
+           uart_write_bytes(UART_NUM_0,buf,15);
+       //}
 
+   }
+    vTaskDelete(NULL);
+}
 void follow_curve(void *pvParameters)
 {
     double time_before = temp_data[0][0];
@@ -98,11 +115,13 @@ void cmd_oven(char  cmd)
     	command_oven(0); 
      }
      else if (cmd == '.'){
+    	command_oven(1); 
         time_start = now();
 	past_error=0;
         //follow_curve();
         if(!interrupt)
-       	    xTaskCreate(follow_curve, "follow_curve_task", 2048, NULL, 10, NULL);
+       	    xTaskCreate(profile_power, "profile", 2048, NULL, 10, NULL);
+//xTaskCreate(follow_curve, "follow_curve_task", 2048, NULL, 10, NULL);
 
      }  
      else if (cmd == '*'){
