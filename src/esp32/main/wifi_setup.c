@@ -14,8 +14,8 @@
 #include "lwip/netdb.h"
 #include "lwip/dns.h"
 #include "wifi_setup.h"
-#define WIFI_SSID "ssid"
-#define WIFI_PASS "pass"
+#define WIFI_SSID "Home47"
+#define WIFI_PASS "#1028405230#"
 
 /* FreeRTOS event group to signal when we are connected & ready to make a request */
 static EventGroupHandle_t wifi_event_group;

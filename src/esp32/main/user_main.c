@@ -23,7 +23,7 @@ void app_main()
 	
     nvs_flash_init();
     init_oven();
-    init_wifisetup();
+    //init_wifisetup();
     uart_init(); 
 }
 

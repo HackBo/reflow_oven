@@ -40,7 +40,7 @@ void profile_power(void *pvParameters)
        //}
 
    }
-    vTaskDelete(NULL);
+    vTaskDelete(t_profile);
 }
 void follow_curve(void *pvParameters)
 {
@@ -56,7 +56,7 @@ void follow_curve(void *pvParameters)
         temp_before = temp_data[i][1];
 	
     }
-    vTaskDelete(NULL);
+    vTaskDelete(t_control);
 
 }
 void aim_for(double temp_from, double time_from, double temp_to, double time_to)
@@ -120,15 +120,17 @@ void cmd_oven(char  cmd)
 	past_error=0;
         //follow_curve();
         if(!interrupt)
-       	    xTaskCreate(profile_power, "profile", 2048, NULL, 10, NULL);
-//xTaskCreate(follow_curve, "follow_curve_task", 2048, NULL, 10, NULL);
+       	    xTaskCreate(profile_power, "profile", 2048, NULL, 10, t_profile);
+//xTaskCreate(follow_curve, "follow_curve_task", 2048, NULL, 10, t_control);
 
      }  
      else if (cmd == '*'){
     	double t= read_temp();
 	ESP_LOGI(TAG,"TEMP %.2lf", t);
      }else if (cmd == 's'){
+    	command_oven(0); 
 	interrupt=!interrupt;
+        vTaskDelete(t_profile);
      }
 
 
