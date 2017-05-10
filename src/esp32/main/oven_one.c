@@ -8,6 +8,10 @@
 #include "oven_one.h"
 #include "driver/uart.h"
 
+static xTaskHandle t_profile;
+static xTaskHandle t_control;
+
+
 int now(void)
 {
     struct timeval tv;
@@ -35,7 +39,8 @@ void profile_power(void *pvParameters)
            double temp_0 = read_temp();
            int time=now();
            static char buf[15];
-           snprintf(buf,sizeof(buf), "%.2f,%d;\n", temp_0,time);
+           //snprintf(buf,sizeof(buf), "%.2f,%d;\n", temp_0,time);
+           snprintf(buf,sizeof(buf), "%.2f %.2f\n", (float)time,temp_0);
            uart_write_bytes(UART_NUM_0,buf,15);
        //}
 
@@ -120,7 +125,7 @@ void cmd_oven(char  cmd)
 	past_error=0;
         //follow_curve();
         if(!interrupt)
-       	    xTaskCreate(profile_power, "profile", 2048, NULL, 10, t_profile);
+       	    xTaskCreate(profile_power, "profile", 2048, NULL, 10, &t_profile);
 //xTaskCreate(follow_curve, "follow_curve_task", 2048, NULL, 10, t_control);
 
      }  

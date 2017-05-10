@@ -11,6 +11,7 @@
 #include <sys/time.h>
 #include "wifi_setup.h"
 #include "uart_handler.h"
+#include "pwm_control.h"
 #include "oven_one.h"
 
 
@@ -23,6 +24,7 @@ void app_main()
 	
     nvs_flash_init();
     init_oven();
+    init_pwm();
     //init_wifisetup();
     uart_init(); 
 }

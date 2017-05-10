@@ -7,6 +7,7 @@
 #include "esp_log.h"
 #include "uart_handler.h"
 #include "oven_one.h"
+#include "pwm_control.h"
 static int uart_num = UART_NUM_0;
 QueueHandle_t uart0_queue;
 
@@ -104,6 +105,7 @@ void uart_init(void)
             //ESP_LOGI(TAG, "uart read : len: %d data: %c\n", len, data[0]);
 	    //TODO: find a better way to recieve commands from uart, hint:pointer to oven method param.
 	    cmd_oven(data[0]);
+	    cmd_pwm(data[0]);
         }
     } while(1);
 }

@@ -10,13 +10,14 @@
 #include "esp_err.h"
 #include "nvs_flash.h"
 #include "uart_handler.h"
+#include "pwm_control.h"
 
 /* 
  * This example is meant to test the pwm output.
  * Next step is to use the PWM in a PID for a reflow oven.
  */
 
-#define LEDC_IO_1    (19)
+#define LEDC_IO_1    (18)
 
 //Max PWM is two to the power of the timer bit size LEDC_TIMER
 #define MAX_PWM	1024
@@ -40,16 +41,16 @@ static void set_PWM(int level)
 }
 
 //Function called from UART input
-void cmd_pwm(char cmd, int length)
+void cmd_pwm(char cmd)
 {
-    if(cmd == '0'){
-	set_PWM(current_PWM + 100*length);
-    } else if (cmd == '1'){
-	set_PWM(current_PWM -100*length);
+    if(cmd == '1'){
+	set_PWM(current_PWM + 100);
+    } else if (cmd == '0'){
+	set_PWM(current_PWM - 100);
     }
 }
 
-void app_main() 
+void init_pwm() 
 {   
     ledc_timer_config_t ledc_timer = {
         .bit_num = LEDC_TIMER_10_BIT,
@@ -68,5 +69,4 @@ void app_main()
     };
     ledc_channel_config(&ledc_channel);
 
-    uart_init();     
 }

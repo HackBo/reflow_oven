@@ -9,8 +9,6 @@
 #define OVEN_GPIO 5
 #define MIN(x,y) (x < y ? x : y)
 #define MAX(x,y) (x > y ? x : y)
-xTaskHandle t_profile;
-xTaskHandle t_control;
 
 static double temp_data[34][2] = {
 	{0.0  ,25},
