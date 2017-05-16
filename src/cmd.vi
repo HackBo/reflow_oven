@@ -1,1 +1,2 @@
 cat /dev/ttyUSB0 >> oven1.log
+cat /dev/ttyUSB0 | while read i; do echo  >> oven1.log ;done 

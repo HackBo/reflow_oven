@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-
+use strict;
 use strict;
 
 use IO::Handle;
@@ -26,12 +26,13 @@ while(1)
     print PLOT "set output 'tmp.png';";
   }
   print PLOT "plot 'data/oven_program_normal.txt' with linespoints, ";
-  print PLOT "'oven1.log' using 1:2 t 'oven_temp' with lines\n;";
+  print PLOT "'oven1.log' using 1:2 t 'oven_temp' lt -1 with lines\n;";
+  #print PLOT "'oven1.log' using 1:2 t 'oven_temp' with lines\n;";
 
   exit 1
     if ($TO_FILE);
 
-  sleep 4
+  sleep 1
 }
 
 close(PLOT);
