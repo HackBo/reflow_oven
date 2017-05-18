@@ -2,10 +2,6 @@
 #define __OVEN_ONE_H_
 
 #include "max6675.h"
-#define k_proportional 1.5
-#define k_integral 0.15
-#define time_window 0.5
-#define zone 15
 #define OVEN_GPIO 5
 #define MIN(x,y) (x < y ? x : y)
 #define MAX(x,y) (x > y ? x : y)
@@ -47,9 +43,6 @@ static double temp_data[34][2] = {
 	{860.0 ,0.0}};
 
 static const char *TAG = "REFLOW";
-static int time_start;
-static double past_error;
-static bool interrupt=false;
 
 
 void init_oven(void);

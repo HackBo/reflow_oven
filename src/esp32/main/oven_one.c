@@ -10,6 +10,14 @@
 
 static xTaskHandle t_profile;
 static xTaskHandle t_control;
+static double proportion;
+static double k_proportional = 1.5;
+static double k_integral =  0.7;
+static double time_window =0.2;
+static double zone = 5.0;
+static int time_start;
+static double past_error;
+static bool interrupt=false;
 
 
 int now(void)
@@ -17,6 +25,7 @@ int now(void)
     struct timeval tv;
     int sec;
     gettimeofday(&tv, NULL);
+    //sec = tv.tv_usec; 
     sec = tv.tv_sec; 
     return sec;
 }
@@ -37,7 +46,7 @@ void print_point(double temp, double time){
 }
 void profile_power(void *pvParameters)
 {
-   int time_start=now();
+   time_start=now();
    int t_tick=-1;
    while ((now() - time_start) <= 400 ){
        int tmp_t=now(); 
@@ -53,13 +62,12 @@ void profile_power(void *pvParameters)
 }
 void follow_curve(void *pvParameters)
 {
+    time_start = now();
+    past_error=0;
     double time_before = temp_data[0][0];
     double temp_before = temp_data[0][1];
-    for (int i = 0; i < 34 && !interrupt ; i++){
-//         ESP_LOGI(TAG, "temp data time:%.2f temp: %.2f  \n", temp_data[i][0], temp_data[i][1]);
-        int cur_time = now();	
-	double temp_1 = read_temp();
-//        ESP_LOGI(TAG,"Celsius FLOAT : %.2f time: %d\n",temp_1,  cur_time);
+    proportion=0.0;
+    for (int i = 0; i < 34 ; i++){
         aim_for(temp_before, time_before,
                      temp_data[i][1], temp_data[i][0]);
         time_before = temp_data[i][0];
@@ -76,14 +84,15 @@ void aim_for(double temp_from, double time_from, double temp_to, double time_to)
     double K = temp_to - slope * time_to;
     //# This will take about 0.25s.
     double temp_0 = read_temp();
-    while (((now() - time_start) <= time_to) && !interrupt){
+    ESP_LOGE(TAG,"time_to!  ->: %.2lf", time_to);
+    while (((now() - time_start) <= time_to) ){
 	   
         double time_in_curve = now() - time_start;
+	ESP_LOGI(TAG,"time in curve: %.2lf", time_in_curve);
         double temp_wanted = slope * time_in_curve + K;
         double error = temp_wanted - temp_0;
-//	ESP_LOGI(TAG,"wanted:%.2lf vs to:%.2lf ", temp_wanted, temp_to);
 	past_error += (error * time_window);
-        double proportion=0.0;
+	ESP_LOGI(TAG,"wanted:%.2lf  to:%.2lf error %.2lf acc error %.2lf", temp_wanted, temp_to, error,past_error);
         if (error < 0){
             proportion = 0.0;
         }
@@ -93,17 +102,18 @@ void aim_for(double temp_from, double time_from, double temp_to, double time_to)
         else {
             double integral = k_integral * past_error;
             double proportional = (k_proportional * error) / zone;
-//	    ESP_LOGI(TAG,"I:%.2lf P:%.2lf P+I(proportion): %.2lf ", integral, proportional,integral +proportional);
+	    ESP_LOGI(TAG,"I:%.2lf P:%.2lf P+I: %.2lf ", integral, proportional,integral +proportional);
 	    proportion =MAX(0.0, MIN(1.0, integral + proportional));
-            //proportion = MIN(1.0,  proportional);
-          ESP_LOGI(TAG, "time:%.2lf temp:%.2lf  target:%.2lf  error:%.2lf  proportion:%.2lf",time_in_curve, temp_0, temp_wanted, error, proportion);
+            ESP_LOGI(TAG, "time:%.2lf temp:%.2lf  target:%.2lf  error:%.2lf",time_in_curve, temp_0, temp_wanted, error);
+	    print_point(temp_0, time_in_curve);
 	} 
+        ESP_LOGE(TAG, "proportion:%.2lf",proportion);
         //# Only turn on if we need to do some control.
         control_oven_with_bool(proportion > 0.0);
          //# Time reading from the thermocouple.
         double time_thermo = now();
         temp_0 = read_temp();
-	print_point(temp_0, time_thermo);
+	//print_point(temp_0, time_thermo);
         time_thermo = now() - time_thermo;
         //# How long do we need to be on and off?
         double time_need_on = time_window * proportion - time_thermo;
@@ -126,9 +136,7 @@ void cmd_oven(char  cmd)
      }
      else if (cmd == '.'){
     	command_oven(1); 
-        time_start = now();
-	past_error=0;
-        //follow_curve();
+                //follow_curve();
         if(!interrupt)
             xTaskCreate(follow_curve, "follow_curve_task", 2048, NULL, 10, &t_control);
 //     	    xTaskCreate(profile_power, "profile", 2048, NULL, 10, &t_profile);
@@ -139,7 +147,6 @@ void cmd_oven(char  cmd)
 	ESP_LOGI(TAG,"TEMP %.2lf", t);
      }else if (cmd == 's'){
     	command_oven(0); 
-	interrupt=!interrupt;
         //vTaskDelete(t_profile);
         vTaskDelete(t_control);
      }
