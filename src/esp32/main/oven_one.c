@@ -105,8 +105,8 @@ void aim_for(double temp_from, double time_from, double temp_to, double time_to)
 	    ESP_LOGI(TAG,"I:%.2lf P:%.2lf P+I: %.2lf ", integral, proportional,integral +proportional);
 	    proportion =MAX(0.0, MIN(1.0, integral + proportional));
             ESP_LOGI(TAG, "time:%.2lf temp:%.2lf  target:%.2lf  error:%.2lf",time_in_curve, temp_0, temp_wanted, error);
-	    print_point(temp_0, time_in_curve);
 	} 
+	print_point(temp_0, time_in_curve);
         ESP_LOGE(TAG, "proportion:%.2lf",proportion);
         //# Only turn on if we need to do some control.
         control_oven_with_bool(proportion > 0.0);
